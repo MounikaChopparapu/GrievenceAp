@@ -27,15 +27,20 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.grievence.R
 import com.grievence.routing.Screen
+import com.grievence.ui.grievence_database.GrievencePreference
 import com.grievence.ui.theme.*
-import com.grievence.utils.OutlineFormField
+import com.grievence.utils.GrievenceBorderDeild
 import com.grievence.utils.RoundedButton
+import com.grievence.utils.isValidEmail
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
+    val preference = remember {
+        GrievencePreference(context)
+    }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val db = Firebase.firestore
@@ -46,33 +51,38 @@ fun LoginScreen(navController: NavController) {
                     .fillMaxSize()
                     .background(green)
             ) {
-                Spacer(modifier = Modifier
-                    .background(green)
-                    .height(45.dp))
-                Column(modifier = Modifier
-                    .fillMaxSize()
-                    .background(white).padding(15.dp)) {
+                Spacer(
+                    modifier = Modifier
+                        .background(green)
+                        .height(45.dp)
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(white)
+                        .padding(15.dp)
+                ) {
                     Spacer(modifier = Modifier.height(30.dp))
                     Text(
                         "Hey!",
-                        modifier =Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         style = TextStyle(color = black, fontSize = 16.sp)
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         "Welcome , Please Login\nto continue.",
-                        modifier =Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         style = TextStyle(color = black, fontSize = 16.sp)
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         "Email",
-                        modifier =Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         style = TextStyle(color = black)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlineFormField(
+                    GrievenceBorderDeild(
                         value = email,
                         onValueChange = { text ->
                             email = text
@@ -84,11 +94,11 @@ fun LoginScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         "Password",
-                        modifier =Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         style = TextStyle(color = black)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OutlineFormField(
+                    GrievenceBorderDeild(
                         value = password,
                         onValueChange = { text ->
                             password = text
@@ -107,61 +117,74 @@ fun LoginScreen(navController: NavController) {
                             textColor = white,
                             onClick = {
                                 if (email.isNotEmpty()) {
-                                    if (password.isNotEmpty()) {
-                                        db.collection("users")
-                                            .get()
-                                            .addOnSuccessListener { result ->
-                                                if (result.isEmpty) {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Invalid user.",
-                                                        Toast.LENGTH_LONG
-                                                    ).show()
-                                                    return@addOnSuccessListener
-                                                } else {
-                                                    for (document in result) {
-                                                        Log.e(
-                                                            "TAG",
-                                                            "setOnClick: $document"
-                                                        )
-                                                        if (document.data["email"] == email &&
-                                                            document.data["password"] == password
-                                                        ) {
-                                                            Toast.makeText(
-                                                                context,
-                                                                "Login successfully.",
-                                                                Toast.LENGTH_LONG
-                                                            ).show()
-                                                            navController.navigate(
-                                                                Screen.MainScreen.route
+                                    if (!isValidEmail(email.trim())) {
+                                        if (password.isNotEmpty()) {
+                                            db.collection("users")
+                                                .get()
+                                                .addOnSuccessListener { result ->
+                                                    if (result.isEmpty) {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Invalid user.",
+                                                            Toast.LENGTH_LONG
+                                                        ).show()
+                                                        return@addOnSuccessListener
+                                                    } else {
+                                                        for (document in result) {
+                                                            Log.e(
+                                                                "TAG",
+                                                                "setOnClick: $document"
+                                                            )
+                                                            if (document.data["email"] == email &&
+                                                                document.data["password"] == password
                                                             ) {
-                                                                popUpTo(Screen.LoginScreen.route) {
-                                                                    inclusive = true
+                                                                preference.saveData(
+                                                                    "isLogin",
+                                                                    true
+                                                                )
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "Login successfully.",
+                                                                    Toast.LENGTH_LONG
+                                                                ).show()
+                                                                navController.navigate(
+                                                                    Screen.MainScreen.route
+                                                                ) {
+                                                                    popUpTo(Screen.LoginScreen.route) {
+                                                                        inclusive = true
+                                                                    }
                                                                 }
+                                                            } else {
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "Invalid user.",
+                                                                    Toast.LENGTH_LONG
+                                                                ).show()
+                                                                return@addOnSuccessListener
                                                             }
-                                                        } else {
-                                                            Toast.makeText(
-                                                                context,
-                                                                "Invalid user.",
-                                                                Toast.LENGTH_LONG
-                                                            ).show()
-                                                            return@addOnSuccessListener
                                                         }
                                                     }
-                                                }
 
-                                            }
-                                            .addOnFailureListener { exception ->
-                                                Toast.makeText(
-                                                    context,
-                                                    exception.message.toString(),
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                            }
+                                                }
+                                                .addOnFailureListener { exception ->
+                                                    Toast.makeText(
+                                                        context,
+                                                        exception.message.toString(),
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                }
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                "Please enter password.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+
+                                        }
                                     } else {
                                         Toast.makeText(
                                             context,
-                                            "Please enter password.",
+                                            "Please enter valid email.",
                                             Toast.LENGTH_LONG
                                         ).show()
 
@@ -178,9 +201,6 @@ fun LoginScreen(navController: NavController) {
                         )
                     }
                 }
-
-
-
 
 
             }

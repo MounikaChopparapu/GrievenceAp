@@ -39,7 +39,7 @@ import com.grievence.utils.RoundedButton
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun DetailScreen(navController: NavController) {
+fun DetailScreen(navController: NavController, name:String,image:Int,address:String,detail:String) {
     val context = LocalContext.current
     var showDropdown by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
@@ -56,11 +56,12 @@ fun DetailScreen(navController: NavController) {
                     .background(color = green)
                     .fillMaxSize()
                     .padding(top = 40.dp)
+                    .verticalScroll(scrollState)
             ) {
                 SmallTopAppBar(
                     title = {
                         Text(
-                            text = "Detail", color = Color.White,
+                            text = name, color = Color.White,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp),
@@ -86,7 +87,7 @@ fun DetailScreen(navController: NavController) {
 
                 Column(modifier = Modifier.fillMaxSize().background(color = white)) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_restaurant),
+                        painter = painterResource(id = image),
                         contentDescription = "Image",
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier
@@ -95,7 +96,23 @@ fun DetailScreen(navController: NavController) {
                     )
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        "Test Restaurant",
+                        name,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        modifier = Modifier
+                            .padding(vertical = 5.dp, horizontal = 10.dp)
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        address,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        modifier = Modifier
+                            .padding(vertical = 5.dp, horizontal = 10.dp)
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        detail,
                         fontSize = 14.sp,
                         color = Color.Black,
                         modifier = Modifier
@@ -123,6 +140,7 @@ fun DetailScreen(navController: NavController) {
                             )
                         }
                     )
+                    Spacer(Modifier.height(10.dp))
                     Box {
                         if (showDropdown) {
                             Popup(
@@ -130,15 +148,13 @@ fun DetailScreen(navController: NavController) {
                                 properties = PopupProperties(
                                     excludeFromSystemGesture = true,
                                 ),
-                                onDismissRequest = { showDropdown = false }
+                                onDismissRequest = {  }
                             ) {
 
                                 Column(
-                                    modifier = Modifier
-                                        .heightIn(max = 90.dp)
-                                        .verticalScroll(state = scrollState)
-                                        .padding(10.dp)
-                                        .border(width = 1.dp, color = Color.Gray),
+                                    modifier =  Modifier
+                                        .border(width = 1.dp, color = Color.Gray)
+                                        .background(white),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                 ) {
 
