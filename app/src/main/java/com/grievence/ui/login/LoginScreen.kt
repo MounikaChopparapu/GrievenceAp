@@ -9,23 +9,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.grievence.R
 import com.grievence.routing.Screen
 import com.grievence.ui.grievence_database.GrievencePreference
 import com.grievence.ui.theme.*
@@ -43,7 +41,8 @@ fun LoginScreen(navController: NavController) {
     }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val db = Firebase.firestore
+    var loginUser by remember { mutableStateOf(false) }
+    val firebaseAuth = FirebaseAuth.getInstance()
     GrievenceAppTheme {
         Scaffold {
             Column(
@@ -117,61 +116,32 @@ fun LoginScreen(navController: NavController) {
                             textColor = white,
                             onClick = {
                                 if (email.isNotEmpty()) {
-                                    if (!isValidEmail(email.trim())) {
+                                    if (!isValidEmail(email.toString())) {
                                         if (password.isNotEmpty()) {
-                                            db.collection("users")
-                                                .get()
-                                                .addOnSuccessListener { result ->
-                                                    if (result.isEmpty) {
+                                            loginUser = true
+                                            firebaseAuth.signInWithEmailAndPassword(email.lowercase(), password)
+                                                .addOnCompleteListener { task ->
+                                                    if (task.isSuccessful) {
+                                                        preference.saveData(
+                                                            "isLogin", true
+                                                        )
                                                         Toast.makeText(
-                                                            context,
-                                                            "Invalid user.",
-                                                            Toast.LENGTH_LONG
+                                                            context, "Login successfully.", Toast.LENGTH_SHORT
                                                         ).show()
-                                                        return@addOnSuccessListener
-                                                    } else {
-                                                        for (document in result) {
-                                                            Log.e(
-                                                                "TAG",
-                                                                "setOnClick: $document"
-                                                            )
-                                                            if (document.data["email"] == email &&
-                                                                document.data["password"] == password
-                                                            ) {
-                                                                preference.saveData(
-                                                                    "isLogin",
-                                                                    true
-                                                                )
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    "Login successfully.",
-                                                                    Toast.LENGTH_LONG
-                                                                ).show()
-                                                                navController.navigate(
-                                                                    Screen.MainScreen.route
-                                                                ) {
-                                                                    popUpTo(Screen.LoginScreen.route) {
-                                                                        inclusive = true
-                                                                    }
-                                                                }
-                                                            } else {
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    "Invalid user.",
-                                                                    Toast.LENGTH_LONG
-                                                                ).show()
-                                                                return@addOnSuccessListener
+                                                        navController.navigate(
+                                                            Screen.MainScreen.route
+                                                        ) {
+                                                            popUpTo(Screen.LoginScreen.route) {
+                                                                inclusive = true
                                                             }
                                                         }
+                                                        loginUser = false
+                                                    } else {
+                                                        Toast.makeText(
+                                                            context, task.exception?.message.toString(), Toast.LENGTH_SHORT
+                                                        ).show()
+                                                        loginUser = false
                                                     }
-
-                                                }
-                                                .addOnFailureListener { exception ->
-                                                    Toast.makeText(
-                                                        context,
-                                                        exception.message.toString(),
-                                                        Toast.LENGTH_LONG
-                                                    ).show()
                                                 }
                                         } else {
                                             Toast.makeText(
@@ -195,43 +165,56 @@ fun LoginScreen(navController: NavController) {
                                         "Please enter email.",
                                         Toast.LENGTH_LONG
                                     ).show()
-
                                 }
                             }
                         )
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 20.dp),
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Don't have an account?",
+                                textAlign = TextAlign.End,
+                                style = TextStyle(color = gray)
+                            )
+
+                            Text(
+                                " Register", modifier = Modifier.clickable {
+                                    navController.navigate(Screen.RegisterScreen.route)
+                                }, textAlign = TextAlign.End,
+                                style = TextStyle(color = green)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
 
 
             }
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 20.dp),
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+            if (loginUser) {
+                Dialog(
+                    onDismissRequest = { },
+                    DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
                 ) {
-                    Text(
-                        "Don't have an account?",
-                        textAlign = TextAlign.End,
-                        style = TextStyle(color = gray)
-                    )
-
-                    Text(
-                        " Register", modifier = Modifier.clickable {
-                            navController.navigate(Screen.RegisterScreen.route)
-                        }, textAlign = TextAlign.End,
-                        style = TextStyle(color = green)
-                    )
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .background(white, shape = RoundedCornerShape(8.dp))
+                    ) {
+                        CircularProgressIndicator(color = green)
+                    }
                 }
-                Spacer(modifier = Modifier.height(10.dp))
             }
-
 
         }
     }

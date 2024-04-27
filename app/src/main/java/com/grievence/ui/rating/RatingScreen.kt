@@ -51,7 +51,7 @@ fun RatingScreen(navController: NavController) {
         mutableStateOf(false)
     }
     val criteria = arrayListOf(
-        "Food ", "Service",
+        "Food", "Service",
         "Atmosphere/ambience"
     )
     var selectedCriteria by remember { mutableStateOf("") }
@@ -238,6 +238,21 @@ fun RatingScreen(navController: NavController) {
                             }
                         }
                     }
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        "Rate to Restaurant option",
+                        modifier = Modifier.fillMaxWidth(),
+                        style = TextStyle(color = black)
+                    )
+                    Text(
+                        "One star=Eek! Methinks not!\n" +
+                                "Two stars=Meh I’ve experienced better\n" +
+                                "Three stars=A-OK\n" +
+                                "Four stars=Yea! I’m a fan\n" +
+                                "Five stars=Woohoo! As good as it gets!",
+                        modifier = Modifier.fillMaxWidth(),
+                        style = TextStyle(color = black)
+                    )
                     Spacer(Modifier.height(10.dp))
                     StarRatingBar(
                         maxStars = 5,

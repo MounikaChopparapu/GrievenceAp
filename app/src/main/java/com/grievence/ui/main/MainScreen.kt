@@ -203,7 +203,7 @@ fun MainScreen(navController: NavController) {
                 confirmButton = {
                     RoundedButton(
                         text = "Cancel",
-                        textColor = green,
+                        textColor = white,
                         onClick = { isLogout = false }
                     )
                 },
@@ -211,7 +211,7 @@ fun MainScreen(navController: NavController) {
 
                     RoundedButton(
                         text = "Logout",
-                        textColor = green,
+                        textColor = white,
                         onClick = {
                             preference.saveData("isLogin", false)
                             navController.navigate(

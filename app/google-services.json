@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "855958775927",
-    "project_id": "grievence-app",
-    "storage_bucket": "grievence-app.appspot.com"
+    "project_number": "875631734558",
+    "project_id": "grievence-app-72298",
+    "storage_bucket": "grievence-app-72298.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:855958775927:android:3b39e8092cd76a79c1fe72",
+        "mobilesdk_app_id": "1:875631734558:android:72a6465f4e4d6a1a4e230f",
         "android_client_info": {
           "package_name": "com.grievence"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAISXpP9ou2-UF9jvFez7Zy6kWkQo_NIc0"
+          "current_key": "AIzaSyDd7dXxv_DReXvR1qbv3tloJEiOKQyuNyo"
         }
       ],
       "services": {

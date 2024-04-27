@@ -57,7 +57,7 @@ fun DrawerBody(onRate: () -> Unit,onGrevience: () -> Unit,onLogout: () -> Unit) 
             }
         )
         DrawerMenuItem(
-            text = "Grievence Detail",
+            text = "Submit Grievance",
             onItemClick = {
                 onGrevience()
             }

@@ -95,7 +95,7 @@ fun GrievenceScreen(navController: NavController) {
                 SmallTopAppBar(
                     title = {
                         Text(
-                            text = "Rate our Restaurant", color = Color.White,
+                            text = "Submit Grievance", color = Color.White,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp),
@@ -309,7 +309,7 @@ fun GrievenceScreen(navController: NavController) {
                         modifier = Modifier
                     ) {
                         RoundedButton(
-                            text = "Submit rating",
+                            text = "Submit Grievance",
                             textColor = white,
                             onClick = {
                                 if (selectedRestaurant.isEmpty()) {
